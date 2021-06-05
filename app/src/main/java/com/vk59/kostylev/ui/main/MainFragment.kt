@@ -7,11 +7,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -23,6 +18,7 @@ import com.bumptech.glide.request.target.Target
 import com.google.android.material.snackbar.Snackbar
 import com.vk59.kostylev.R
 import com.vk59.kostylev.Status
+import com.vk59.kostylev.databinding.MainFragmentBinding
 import com.vk59.kostylev.model.ItemVideo
 
 
@@ -33,16 +29,13 @@ class MainFragment : Fragment() {
     }
 
     private lateinit var viewModel: MainViewModel
-    private lateinit var descriptionText: TextView
-    private lateinit var getButton: Button
-    private lateinit var actualGifView: ImageView
-    private lateinit var loadingBar: ProgressBar
-    private lateinit var root: ConstraintLayout
-    private var gifLinks: ArrayList<String> = arrayListOf()
+    private var gifLinks: ArrayList<ItemVideo> = arrayListOf()
     private var data: List<ItemVideo>? = null
+    private lateinit var binding: MainFragmentBinding
 
     private var page = 0
     private var gifNumber = 0
+    private var globalGifNumber = 0
     private val MAIN = "MAIN"
 
     override fun onCreateView(
@@ -50,37 +43,41 @@ class MainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.main_fragment, container, false)
-        initFragment(view)
+        binding = MainFragmentBinding.bind(view)
         setGetOnClick()
         setBackOnClick()
-        return view
+        return binding.root
     }
 
-
-    private fun initFragment(view: View) {
-        descriptionText = view.findViewById(R.id.linkText)
-        getButton = view.findViewById(R.id.getButton)
-        actualGifView = view.findViewById(R.id.actualGifImage)
-        loadingBar = view.findViewById(R.id.loadingBar)
-        root = view.findViewById(R.id.main)
-    }
 
     private fun setGetOnClick() {
-        getButton.setOnClickListener {
-            gifNumber++
-            if (data != null && gifNumber >= data!!.size) {
-                page++
-                viewModel.getLatest(page)
-                gifNumber = 0
+        binding.nextGifButton.setOnClickListener {
+            binding.previousButton.isEnabled = true
+            globalGifNumber++
+            if (globalGifNumber < gifLinks.size) {
+                setPreviousContent(requireContext())
             } else {
-                setContentToImageView(requireContext())
+                gifNumber++
+                if (data != null && gifNumber >= data!!.size) {
+                    page++
+                    viewModel.getLatest(page)
+                    gifNumber = 0
+                } else {
+                    setNewContent(requireContext())
+                }
             }
         }
     }
 
 
     private fun setBackOnClick() {
-        TODO("Not yet implemented")
+        binding.previousButton.setOnClickListener {
+            globalGifNumber--
+            if (globalGifNumber == 0) {
+                binding.previousButton.isEnabled = false
+            }
+            setPreviousContent(requireContext())
+        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -102,25 +99,26 @@ class MainFragment : Fragment() {
     }
 
     private fun viewError() {
-        Snackbar.make(root, getString(R.string.text_error), Snackbar.LENGTH_LONG).show()
-        loadingBar.visibility = View.GONE
-        actualGifView.setImageResource(R.drawable.ic_baseline_error_24)
+        Snackbar.make(binding.root, getString(R.string.text_error), Snackbar.LENGTH_LONG).show()
+        binding.loadingBar.visibility = View.GONE
+        binding.actualGifImage.setImageResource(R.drawable.ic_baseline_error_24)
     }
 
     private fun viewSuccess(data: List<ItemVideo>) {
         this.data = data
-        setContentToImageView(requireContext())
+        setNewContent(requireContext())
     }
 
-    private fun setContentToImageView(context: Context) {
-        loadingBar.visibility = View.VISIBLE
-        val url = data!![gifNumber].gifURL!!
-        gifLinks.add(url)
+    private fun setNewContent(context: Context) {
+        binding.loadingBar.visibility = View.VISIBLE
+        gifLinks.add(data!![gifNumber])
+        setContentToView(context, data!![gifNumber].gifURL!!, data!![gifNumber].description!!)
+    }
 
+    private fun setContentToView(context: Context, url: String, description: String) {
         Glide.with(context)
             .load(url)
             .error(R.drawable.ic_baseline_error_24)
-            .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
             .listener(object : RequestListener<Drawable> {
                 override fun onResourceReady(
                     resource: Drawable?,
@@ -129,9 +127,9 @@ class MainFragment : Fragment() {
                     dataSource: DataSource?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    loadingBar.visibility = View.GONE
-                    actualGifView.visibility = View.VISIBLE
-                    actualGifView.setImageDrawable(resource)
+                    binding.loadingBar.visibility = View.GONE
+                    binding.actualGifImage.visibility = View.VISIBLE
+                    binding.actualGifImage.setImageDrawable(resource)
                     return false
                 }
 
@@ -146,12 +144,19 @@ class MainFragment : Fragment() {
                     return false
                 }
             })
-            .into(actualGifView)
-        descriptionText.text = data!![gifNumber].description
+            .into(binding.actualGifImage)
+        binding.descriptionText.text = description
+    }
+
+    private fun setPreviousContent(context: Context) {
+        setContentToView(
+            context, gifLinks[globalGifNumber].gifURL!!,
+            gifLinks[globalGifNumber].description!!
+        )
     }
 
     private fun viewLoading() {
-        loadingBar.visibility = View.VISIBLE
+        binding.loadingBar.visibility = View.VISIBLE
     }
 
 }

@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">kostylev</string>
     <string name="text_error">Something went wrong</string>
+    <string name="loading">loading..</string>
+    <string name="nextButton">Next</string>
+    <string name="previousButton">Previous</string>
 </resources>
