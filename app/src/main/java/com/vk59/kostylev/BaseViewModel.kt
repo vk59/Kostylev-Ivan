@@ -38,9 +38,9 @@ fun requestWithLiveData(
                 // Сетим в лайвдату командой postValue в IO потоке
                 liveData.postValue(Event.success(response.result))
             }
-//            else if (response.error != null) {
-//                liveData.postValue(Event.error(response.error))
-//            }
+            else {
+                liveData.postValue(Event.error(null))
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             liveData.postValue(Event.error(null))
