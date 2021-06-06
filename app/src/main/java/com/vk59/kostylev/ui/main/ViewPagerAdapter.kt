@@ -1,10 +1,10 @@
-package com.vk59.kostylev
+package com.vk59.kostylev.ui.main
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 
-class ViewPagerAdapter(fm: FragmentManager, var numOfTabs: Int) : FragmentPagerAdapter(fm) {
+class ViewPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
     private var fragmentList: ArrayList<Fragment> = arrayListOf()
     private var fragmentTitleList: ArrayList<String> = arrayListOf()
 

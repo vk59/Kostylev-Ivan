@@ -9,7 +9,6 @@ import com.vk59.kostylev.ui.BaseFragment
 class HotFragment : BaseFragment() {
 
     private lateinit var viewModel: HotViewModel
-    private val HOT = "HOT"
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         viewModel = ViewModelProvider(this).get(HotViewModel::class.java)
@@ -26,7 +25,7 @@ class HotFragment : BaseFragment() {
                 Status.LOADING -> viewLoading()
                 Status.SUCCESS -> {
                     if (!it.data.isNullOrEmpty()) {
-                        viewSuccess(it.data!!)
+                        viewSuccess(it.data)
                     } else {
                         viewEmpty()
                     }

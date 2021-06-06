@@ -1,16 +1,15 @@
-package com.vk59.kostylev
+package com.vk59.kostylev.ui.main
 
 import android.os.Bundle
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import com.vk59.kostylev.R
 import com.vk59.kostylev.databinding.MainActivityBinding
 import com.vk59.kostylev.ui.hot.HotFragment
-import com.vk59.kostylev.ui.main.MainFragment
+import com.vk59.kostylev.ui.latest.LatestFragment
 import com.vk59.kostylev.ui.top.TopFragment
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: MainActivityBinding
-    private lateinit var actionBar: ActionBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,9 +22,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupViewPager() {
-        val adapter = ViewPagerAdapter(supportFragmentManager, binding.tabLayout.tabCount)
+        val adapter = ViewPagerAdapter(supportFragmentManager)
 
-        adapter.addFragment(MainFragment(), getString(R.string.latestTab))
+        adapter.addFragment(LatestFragment(), getString(R.string.latestTab))
         adapter.addFragment(TopFragment(), getString(R.string.topTab))
         adapter.addFragment(HotFragment(), getString(R.string.hotTab))
         binding.viewPager.adapter = adapter

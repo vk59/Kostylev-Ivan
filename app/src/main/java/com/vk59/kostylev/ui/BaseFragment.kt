@@ -125,7 +125,6 @@ abstract class BaseFragment : Fragment() {
     private fun setContentToView(context: Context, url: String, description: String) {
         Glide.with(context)
             .load(url)
-            .error(R.drawable.ic_baseline_error_24)
             .listener(object : RequestListener<Drawable> {
                 override fun onResourceReady(
                     resource: Drawable?,

@@ -6,7 +6,7 @@ import com.vk59.kostylev.Status.*
 import com.vk59.kostylev.model.ResponseData
 import com.vk59.kostylev.ui.BaseViewModel
 import com.vk59.kostylev.ui.hot.HotViewModel
-import com.vk59.kostylev.ui.main.MainViewModel
+import com.vk59.kostylev.ui.latest.LatestViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
@@ -51,7 +51,7 @@ class ViewModelTest : BaseViewModel() {
 
     }
 
-    private val viewModel = MainViewModel()
+    private val viewModel = LatestViewModel()
 
     @Test
     fun getData() {
