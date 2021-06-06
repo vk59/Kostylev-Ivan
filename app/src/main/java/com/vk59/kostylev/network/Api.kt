@@ -11,7 +11,6 @@ interface Api {
     @GET("top/{page}?json=true")
     suspend fun getTop(@Path("page") page: Int): ResponseData
 
-
     @GET("hot/{page}?json=true")
     suspend fun getHot(@Path("page") page: Int): ResponseData
 }
