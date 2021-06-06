@@ -29,8 +29,8 @@ class MainActivity : AppCompatActivity() {
         val adapter = ViewPagerAdapter(supportFragmentManager, binding.tabLayout.tabCount)
 
         adapter.addFragment(MainFragment(), getString(R.string.latestTab))
-        adapter.addFragment(HotFragment(), getString(R.string.hotTab))
         adapter.addFragment(TopFragment(), getString(R.string.topTab))
+        adapter.addFragment(HotFragment(), getString(R.string.hotTab))
         binding.viewPager.adapter = adapter
         binding.viewPager.offscreenPageLimit = 2
     }

@@ -1,32 +1,39 @@
 package com.vk59.kostylev.ui.hot
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.vk59.kostylev.R
+import com.vk59.kostylev.Status
+import com.vk59.kostylev.ui.BaseFragment
 
-class HotFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = HotFragment()
-    }
+class HotFragment : BaseFragment() {
 
     private lateinit var viewModel: HotViewModel
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.hot_fragment, container, false)
-    }
+    private val HOT = "HOT"
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this).get(HotViewModel::class.java)
-        // TODO: Use the ViewModel
+        super.onActivityCreated(savedInstanceState)
+    }
+
+    override fun getRequest() {
+        viewModel.getHot(page)
+    }
+
+    override fun observeGetPosts() {
+        viewModel.simpleLiveData.observe(viewLifecycleOwner, Observer {
+            when (it.status) {
+                Status.LOADING -> viewLoading()
+                Status.SUCCESS -> {
+                    if (!it.data.isNullOrEmpty()) {
+                        viewSuccess(it.data!!)
+                    } else {
+                        viewEmpty()
+                    }
+                }
+                Status.ERROR -> viewError()
+            }
+        })
     }
 
 }

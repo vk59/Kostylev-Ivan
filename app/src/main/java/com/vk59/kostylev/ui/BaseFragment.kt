@@ -8,8 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -17,27 +15,20 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.google.android.material.snackbar.Snackbar
 import com.vk59.kostylev.R
-import com.vk59.kostylev.Status
 import com.vk59.kostylev.databinding.MainFragmentBinding
 import com.vk59.kostylev.model.ItemVideo
-import com.vk59.kostylev.ui.main.MainViewModel
 
 
-class BaseFragment : Fragment() {
+abstract class BaseFragment : Fragment() {
 
-    companion object {
-        fun newInstance() = BaseFragment()
-    }
-
-    private lateinit var viewModel: MainViewModel
     private var gifLinks: ArrayList<ItemVideo> = arrayListOf()
-    private var data: List<ItemVideo>? = null
-    private lateinit var binding: MainFragmentBinding
+    protected var data: List<ItemVideo>? = null
+    protected lateinit var binding: MainFragmentBinding
 
-    private var page = 0
+    protected var page = 0
     private var gifNumber = 0
     private var globalGifNumber = 0
-    private val MAIN = "MAIN"
+    protected val MAIN = "MAIN"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,7 +38,15 @@ class BaseFragment : Fragment() {
         binding = MainFragmentBinding.bind(view)
         setGetOnClick()
         setBackOnClick()
+        setTryAgainOnClick()
         return binding.root
+    }
+
+    private fun setTryAgainOnClick() {
+        binding.tryAgainButton.setOnClickListener {
+            viewLoading()
+            getRequest()
+        }
     }
 
 
@@ -61,15 +60,16 @@ class BaseFragment : Fragment() {
                 gifNumber++
                 if (data != null && gifNumber >= data!!.size) {
                     page++
-                    viewModel.getLatest(page)
                     gifNumber = 0
-                } else {
+                    getRequest()
+                } else if (data != null && data!!.isNotEmpty()) {
                     setNewContent(requireContext())
                 }
             }
         }
     }
 
+    abstract fun getRequest()
 
     private fun setBackOnClick() {
         binding.previousButton.setOnClickListener {
@@ -83,31 +83,36 @@ class BaseFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-
         observeGetPosts()
-        viewModel.getLatest(page)
+        getRequest()
     }
 
-    private fun observeGetPosts() {
-        viewModel.simpleLiveData.observe(viewLifecycleOwner, Observer {
-            when (it.status) {
-                Status.LOADING -> viewLoading()
-                Status.SUCCESS -> viewSuccess(it.data!!)
-                Status.ERROR -> viewError()
-            }
-        })
-    }
+    abstract fun observeGetPosts()
 
-    private fun viewError() {
+    protected fun viewError() {
         Snackbar.make(binding.root, getString(R.string.text_error), Snackbar.LENGTH_LONG).show()
         binding.loadingBar.visibility = View.GONE
         binding.actualGifImage.setImageResource(R.drawable.ic_baseline_error_24)
     }
 
-    private fun viewSuccess(data: List<ItemVideo>) {
+    protected fun viewSuccess(data: List<ItemVideo>) {
+        binding.tryAgainButton.visibility = View.GONE
+        binding.nextGifButton.visibility = View.VISIBLE
+        binding.previousButton.visibility = View.VISIBLE
         this.data = data
         setNewContent(requireContext())
+    }
+
+    protected fun viewLoading() {
+        binding.loadingBar.visibility = View.VISIBLE
+    }
+
+    protected fun viewEmpty() {
+        binding.loadingBar.visibility = View.GONE
+        binding.nextGifButton.visibility = View.GONE
+        binding.previousButton.visibility = View.GONE
+        binding.tryAgainButton.visibility = View.VISIBLE
+        binding.descriptionText.text = getString(R.string.noGifsExplanation)
     }
 
     private fun setNewContent(context: Context) {
@@ -154,10 +159,6 @@ class BaseFragment : Fragment() {
             context, gifLinks[globalGifNumber].gifURL!!,
             gifLinks[globalGifNumber].description!!
         )
-    }
-
-    private fun viewLoading() {
-        binding.loadingBar.visibility = View.VISIBLE
     }
 
 }
