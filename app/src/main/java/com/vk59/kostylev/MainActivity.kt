@@ -1,6 +1,7 @@
 package com.vk59.kostylev
 
 import android.os.Bundle
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import com.vk59.kostylev.databinding.MainActivityBinding
 import com.vk59.kostylev.ui.hot.HotFragment
@@ -9,16 +10,12 @@ import com.vk59.kostylev.ui.top.TopFragment
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: MainActivityBinding
+    private lateinit var actionBar: ActionBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = MainActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-//        if (savedInstanceState == null) {
-//            supportFragmentManager.beginTransaction()
-//                    .replace(R.id.container, MainFragment.newInstance())
-//                    .commitNow()
-//        }
 
         setupViewPager()
 

@@ -25,6 +25,13 @@ abstract class BaseFragment : Fragment() {
     protected var data: List<ItemVideo>? = null
     protected lateinit var binding: MainFragmentBinding
 
+    private val STATE_OK = 0
+    private val STATE_NOT_FOUND = 1
+    private val STATE_ERROR = 2
+    private val STATE_LOADING = 3
+
+    private var visibilityState: Int = 0
+
     protected var page = 0
     private var gifNumber = 0
     private var globalGifNumber = 0
@@ -52,6 +59,7 @@ abstract class BaseFragment : Fragment() {
 
     private fun setGetOnClick() {
         binding.nextGifButton.setOnClickListener {
+            setNewVisibility(STATE_LOADING)
             binding.previousButton.isEnabled = true
             globalGifNumber++
             if (globalGifNumber < gifLinks.size) {
@@ -90,33 +98,26 @@ abstract class BaseFragment : Fragment() {
     abstract fun observeGetPosts()
 
     protected fun viewError() {
+        setNewVisibility(STATE_ERROR)
         Snackbar.make(binding.root, getString(R.string.text_error), Snackbar.LENGTH_LONG).show()
-        binding.loadingBar.visibility = View.GONE
-        binding.actualGifImage.setImageResource(R.drawable.ic_baseline_error_24)
     }
 
     protected fun viewSuccess(data: List<ItemVideo>) {
-        binding.tryAgainButton.visibility = View.GONE
-        binding.nextGifButton.visibility = View.VISIBLE
-        binding.previousButton.visibility = View.VISIBLE
+        setNewVisibility(STATE_OK)
         this.data = data
         setNewContent(requireContext())
     }
 
     protected fun viewLoading() {
-        binding.loadingBar.visibility = View.VISIBLE
+        setNewVisibility(STATE_LOADING)
     }
 
     protected fun viewEmpty() {
-        binding.loadingBar.visibility = View.GONE
-        binding.nextGifButton.visibility = View.GONE
-        binding.previousButton.visibility = View.GONE
-        binding.tryAgainButton.visibility = View.VISIBLE
-        binding.descriptionText.text = getString(R.string.noGifsExplanation)
+        setNewVisibility(STATE_NOT_FOUND)
     }
 
     private fun setNewContent(context: Context) {
-        binding.loadingBar.visibility = View.VISIBLE
+        setNewVisibility(STATE_LOADING)
         gifLinks.add(data!![gifNumber])
         setContentToView(context, data!![gifNumber].gifURL!!, data!![gifNumber].description!!)
     }
@@ -133,8 +134,7 @@ abstract class BaseFragment : Fragment() {
                     dataSource: DataSource?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    binding.loadingBar.visibility = View.GONE
-                    binding.actualGifImage.visibility = View.VISIBLE
+                    setNewVisibility(STATE_OK)
                     binding.actualGifImage.setImageDrawable(resource)
                     return false
                 }
@@ -159,6 +159,46 @@ abstract class BaseFragment : Fragment() {
             context, gifLinks[globalGifNumber].gifURL!!,
             gifLinks[globalGifNumber].description!!
         )
+    }
+
+    private fun setNewVisibility(newState: Int) {
+        visibilityState = newState
+        when (visibilityState) {
+            STATE_OK -> {
+                binding.errorIndicateLayout.visibility = View.GONE
+                binding.tryAgainButton.visibility = View.GONE
+                binding.nextGifButton.visibility = View.VISIBLE
+                binding.actualGifImage.visibility = View.VISIBLE
+                binding.previousButton.visibility = View.VISIBLE
+                binding.descriptionText.visibility = View.VISIBLE
+            }
+            STATE_ERROR -> {
+                binding.loadingBar.visibility = View.GONE
+                binding.nextGifButton.visibility = View.GONE
+                binding.previousButton.visibility = View.GONE
+                binding.actualGifImage.visibility = View.GONE
+                binding.descriptionText.visibility = View.GONE
+                binding.tryAgainButton.visibility = View.VISIBLE
+                binding.errorIndicateLayout.visibility = View.VISIBLE
+                binding.errorInfo.text = getString(R.string.connectionError)
+                binding.errorIcon.setImageResource(R.drawable.icon_no_connection)
+            }
+            STATE_NOT_FOUND -> {
+                binding.loadingBar.visibility = View.GONE
+                binding.nextGifButton.visibility = View.GONE
+                binding.previousButton.visibility = View.GONE
+                binding.descriptionText.visibility = View.GONE
+                binding.actualGifImage.visibility = View.GONE
+                binding.tryAgainButton.visibility = View.VISIBLE
+                binding.errorIndicateLayout.visibility = View.VISIBLE
+                binding.errorInfo.text = getString(R.string.noGifsExplanation)
+                binding.errorIcon.setImageResource(R.drawable.icon_not_found)
+            }
+            else -> {
+                binding.errorIndicateLayout.visibility = View.GONE
+                binding.loadingBar.visibility = View.VISIBLE
+            }
+        }
     }
 
 }
