@@ -4,4 +4,7 @@
     <string name="loading">loading..</string>
     <string name="nextButton">Next</string>
     <string name="previousButton">Previous</string>
+    <string name="latestTab">Latest</string>
+    <string name="hotTab">Hot</string>
+    <string name="topTab">Top</string>
 </resources>

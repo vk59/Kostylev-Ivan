@@ -1,9 +1,8 @@
 package com.vk59.kostylev.ui.main
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.vk59.kostylev.BaseViewModel
 import com.vk59.kostylev.Event
+import com.vk59.kostylev.ui.BaseViewModel
 
 class MainViewModel : BaseViewModel() {
     // Создаем лайвдату для нашего списка юзеров

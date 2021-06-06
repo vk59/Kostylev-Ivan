@@ -7,4 +7,7 @@ import retrofit2.http.Path
 interface Api {
     @GET("latest/{page}?json=true")
     suspend fun getLatest(@Path("page") page: Int): ResponseData
+
+    @GET("top/{page}?json=true")
+    suspend fun getTop(@Path("page") page: Int): ResponseData
 }

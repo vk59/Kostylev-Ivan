@@ -1,8 +1,9 @@
-package com.vk59.kostylev
+package com.vk59.kostylev.ui
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.vk59.kostylev.Event
 import com.vk59.kostylev.model.ResponseData
 import com.vk59.kostylev.network.Api
 import com.vk59.kostylev.network.NetworkService
